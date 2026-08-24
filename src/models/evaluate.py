@@ -9,8 +9,9 @@ from src.visualization.plots import (
     plot_model_comparison,
 )
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, accuracy_score
+from src.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def evaluate_models(models_dict, X_test, y_test):
