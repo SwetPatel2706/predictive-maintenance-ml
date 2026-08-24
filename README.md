@@ -112,14 +112,14 @@ All run commands use `python -m src.<module>` syntax (not raw relative file path
 
 | Model | Accuracy | Precision | Recall | F1 | ROC-AUC |
 |-------|----------|-----------|--------|----|---------|
-| Logistic Regression | ~0.xxx | ~0.xxx | ~0.xxx | ~0.xxx | ~0.xxx |
-| Decision Tree | ~0.xxx | ~0.xxx | ~0.xxx | ~0.xxx | ~0.xxx |
-| Random Forest (baseline) | ~0.xxx | ~0.xxx | ~0.xxx | ~0.xxx | ~0.xxx |
+| Logistic Regression | 0.8245 | 0.1418 | 0.8235 | 0.2419 | 0.9069 |
+| Decision Tree | 0.9300 | 0.3125 | 0.8824 | 0.4615 | 0.9083 |
+| Random Forest (baseline) | 0.9820 | 0.7500 | 0.7059 | 0.7273 | 0.9639 |
 
 ### Tuned Random Forest
 
-- **Best CV F1:** ~0.xxx (from GridSearchCV)
-- **Test Set Metrics:** Accuracy ~0.xxx, Precision ~0.xxx, Recall ~0.xxx, F1 ~0.xxx, ROC-AUC ~0.xxx
+- **Best CV F1:** 0.7273 (from GridSearchCV)
+- **Test Set Metrics:** Accuracy 0.9810, Precision 0.7273, Recall 0.7059, F1 0.7164, ROC-AUC 0.9700
 - **Best hyperparameters:** `n_estimators=200, max_depth=None, min_samples_split=2, min_samples_leaf=1`
 
 ## Limitations
