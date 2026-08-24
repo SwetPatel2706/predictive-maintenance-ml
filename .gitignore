@@ -1,0 +1,15 @@
+# Data
+data/raw/*.csv
+
+# Generated artifacts (keep folders via .gitkeep)
+models/*.joblib
+reports/logs/*.log
+
+# Jupyter checkpoints
+notebooks/*.ipynb.checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+.env/
+.venv/
