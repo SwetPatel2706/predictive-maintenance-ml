@@ -1,0 +1,8 @@
+feature,importance
+num__Torque,0.32758014685166237
+num__Rotational_Speed,0.2843509100048288
+num__Tool_Wear,0.21100309138001322
+num__Air_Temperature,0.09773031956811687
+num__Process_Temperature,0.06371872785683508
+cat__Type_L,0.00896362113949404
+cat__Type_M,0.006653183199049668
