@@ -91,6 +91,17 @@ def log_recall_limitation_note():
     logger.info(note)
 
 
+def _train_models(models_dict, X_train, y_train):
+    """Fit each model and return fitted dict."""
+    fitted = {}
+    for name, model in models_dict.items():
+        logger.info(f"Training {name}...")
+        model.fit(X_train, y_train)
+        fitted[name] = model
+        logger.info(f"{name} trained.")
+    return fitted
+
+
 def save_results(results_df):
     """Write reports/results/model_comparison_results.csv."""
     REPORTS_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
