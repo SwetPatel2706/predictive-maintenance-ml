@@ -6,7 +6,7 @@ This document provides a comprehensive technical overview of the Predictive Main
 
 ## 1. Project Structure
 
-The project adheres to a modular package architecture located under `src/` to ensure separation of concerns, reusability, testability, and clean dependency management:
+The project adheres to a modular package architecture located under `src/` coupled with an interactive web UI layer in `app.py`:
 
 ```
 predictive-maintenance-ml/
@@ -16,7 +16,7 @@ predictive-maintenance-ml/
 ├── models/
 │   └── best_model.joblib                 # Serialized end-to-end tuned pipeline artifact
 ├── notebooks/
-│   └── predictive_maintenance.ipynb     # Interactive Jupyter notebook for exploratory demo
+│   └── exploratory_analysis.ipynb        # Interactive Jupyter notebook for exploratory demo
 ├── reports/
 │   ├── figures/                          # Saved EDA charts, ROC curves, confusion matrices
 │   ├── logs/                             # Execution logs (pipeline.log)
@@ -34,10 +34,11 @@ predictive-maintenance-ml/
 │   │   ├── train.py                      # Baseline models construction and fitting
 │   │   ├── evaluate.py                   # Metrics evaluation, classification reports, ROC & confusion matrix
 │   │   ├── tune.py                       # GridSearchCV hyperparameter optimization on Random Forest
-│   │   └── predict.py                    # Inference script for real-time / single-sample predictions
+│   │   └── predict.py                    # CLI inference script for real-time / single-sample predictions
 │   └── visualization/
 │       ├── __init__.py
 │       └── plots.py                      # Dedicated visualization routines
+├── app.py                                # Streamlit Web UI for interactive & batch predictions
 ├── BUILD_SPEC.md                         # Detailed project specification
 ├── PROJECT_EXPLAINED.md                  # Comprehensive conceptual walkthrough
 ├── README.md                             # Quickstart and project summary
@@ -59,7 +60,8 @@ flowchart TD
     G --> H["Select Best Architecture\n(Random Forest)"]
     H --> I["Hyperparameter Optimization\n(GridSearchCV 5-Fold Stratified)"]
     I --> J["Save Final Artifacts\n(models/best_model.joblib & reports/)"]
-    J --> K["Single-Sample Inference\n(src/models/predict.py)"]
+    J --> K["CLI Single-Sample Inference\n(src/models/predict.py)"]
+    J --> L["Interactive Streamlit Web UI\n(app.py - Single & Batch CSV Inference)"]
 ```
 
 ### Flow Breakdown:
@@ -95,8 +97,9 @@ flowchart TD
    - Saves the final fitted model pipeline to `models/best_model.joblib`.
    - Saves evaluation results, feature importances, and execution logs to `reports/`.
 
-8. **Inference / Serving (`src/models/predict.py`)**:
-   - Accepts raw unscaled sensor inputs and outputs failure predictions with confidence probabilities.
+8. **Inference & UI Serving (`src/models/predict.py` & `app.py`)**:
+   - **CLI Inference (`src/models/predict.py`)**: Accepts raw unscaled sensor inputs and outputs failure predictions with confidence probabilities via terminal.
+   - **Streamlit Web UI (`app.py`)**: Provides interactive machine telemetry sliders, preset operating scenarios, real-time derived physical metrics ($\Delta T$ and Power in kW), diagnostic status cards, and batch CSV upload with predictions export.
 
 ---
 
@@ -104,9 +107,9 @@ flowchart TD
 
 | Dimension | Detailed Breakdown |
 |---|---|
-| **WHAT** | **Predictive Maintenance Binary Classifier**<br>• Uses historical sensor readings from industrial milling machines (temperatures, rotational speed, torque, tool wear) to predict whether machine failure is imminent (`Machine_Failure` = 0 or 1). |
-| **HOW** | **Modular Python Architecture & Scikit-Learn Pipelines**<br>• Built with pure Python modules and centralized configuration (`src/config.py`).<br>• Integrates feature transformations directly inside `Pipeline` objects to prevent data leakage.<br>• Mitigates severe class imbalance (3.4% failures) using `class_weight='balanced'`.<br>• Systematically optimizes model hyperparameters via 5-fold `GridSearchCV`.<br>• Executed as a full pipeline (`python -m src.run_pipeline`) or modularly by stage. |
-| **WHEN** | **Usage Scenarios**<br>• **Full Pipeline Retraining**: When new telemetry data is collected (`python -m src.run_pipeline`).<br>• **Sub-Module Inspection & Debugging**: Running individual phases (data loading, baseline training, or tuning).<br>• **Real-Time Operational Inference**: Used by plant operators or monitoring services to check machine health (`python -m src.models.predict`). |
+| **WHAT** | **Predictive Maintenance Binary Classifier & Web Interface**<br>• Uses historical sensor readings from industrial milling machines (temperatures, rotational speed, torque, tool wear) to predict whether machine failure is imminent (`Machine_Failure` = 0 or 1). |
+| **HOW** | **Modular Python Architecture & Scikit-Learn Pipelines**<br>• Built with pure Python modules and centralized configuration (`src/config.py`).<br>• Integrates feature transformations directly inside `Pipeline` objects to prevent data leakage.<br>• Mitigates severe class imbalance (3.4% failures) using `class_weight='balanced'`.<br>• Systematically optimizes model hyperparameters via 5-fold `GridSearchCV`.<br>• Provides both CLI inference and a full Streamlit Web UI (`app.py`).<br>• Executed as a full pipeline (`python -m src.run_pipeline`) or modularly by stage. |
+| **WHEN** | **Usage Scenarios**<br>• **Full Pipeline Retraining**: When new telemetry data is collected (`python -m src.run_pipeline`).<br>• **Sub-Module Inspection & Debugging**: Running individual phases (data loading, baseline training, or tuning).<br>• **Terminal-Based Spot Check**: Quick single-reading verification (`python -m src.models.predict`).<br>• **Interactive Dashboard / Operator Use**: Live machine diagnosis and batch CSV log screening (`streamlit run app.py`). |
 | **WHY** | **Architectural & ML Decision Rationale** *(Detailed below)* |
 
 ---
@@ -123,7 +126,7 @@ flowchart TD
 
 ### 3. Why bundle preprocessing into `Pipeline` and `ColumnTransformer`?
 * **Reason**: Fitting scalers or encoders on the whole dataset before splitting leaks test set statistics (mean, variance) into training (**data leakage**).
-* **Impact**: Encapsulating transformers inside `Pipeline` ensures they are fit strictly on training folds. Additionally, the saved `best_model.joblib` accepts raw, unscaled inputs directly without requiring manual preprocessing steps during inference.
+* **Impact**: Encapsulating transformers inside `Pipeline` ensures they are fit strictly on training folds. Additionally, the saved `best_model.joblib` accepts raw, unscaled inputs directly without requiring manual preprocessing steps during inference or in the Streamlit application.
 
 ### 4. Why use Stratified Splitting?
 * **Reason**: Due to the small number of failure events, pure random splitting can cause significant distribution variance between train and test sets.
@@ -133,6 +136,10 @@ flowchart TD
 * **Reason**: Baseline comparisons showed Random Forest significantly outperforming Logistic Regression and Decision Trees in F1-score and ROC-AUC.
 * **Impact**: Running extensive grid searches across all models would waste compute without altering the final production model selection.
 
-### 6. Why centralize settings in `src/config.py` and fix `RANDOM_STATE = 42`?
+### 6. Why build a Streamlit Web UI (`app.py`)?
+* **Reason**: Machine operators and maintenance engineers need a visual, user-friendly interface to test sensor parameters, examine failure risk, and run batch predictions on sensor log CSV files without running Python terminal commands.
+* **Impact**: Empowers non-technical stakeholders to interact directly with the trained model and download batch predictions.
+
+### 7. Why centralize settings in `src/config.py` and fix `RANDOM_STATE = 42`?
 * **Reason**: Hardcoded values scattered across scripts lead to configuration drift and reproducibility issues.
 * **Impact**: `src/config.py` provides a single point of truth for paths, column definitions, and hyperparameter grids, while a constant seed guarantees deterministic and reproducible results.

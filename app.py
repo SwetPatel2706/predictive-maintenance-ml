@@ -304,7 +304,7 @@ with tab1:
 
         # Telemetry Summary
         with st.expander("🔍 View Raw Features Sent to Model", expanded=False):
-            st.dataframe(input_df, use_container_width=True)
+            st.dataframe(input_df, width="stretch")
 
 with tab2:
     st.subheader("Bulk Sensor Log Inference")
@@ -348,7 +348,7 @@ with tab2:
                 kpi2.metric("Failures Predicted", failure_count, delta=f"{(failure_count/total_count):.1%}", delta_color="inverse")
                 kpi3.metric("Healthy Machines", total_count - failure_count)
 
-                st.dataframe(results_df, use_container_width=True)
+                st.dataframe(results_df, width="stretch")
 
                 csv_data = results_df.to_csv(index=False).encode("utf-8")
                 st.download_button(

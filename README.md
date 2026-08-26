@@ -52,6 +52,7 @@ predictive-maintenance-ml/
 │   ├── results/                          # model_comparison.csv, final_results.csv, feature_importance.csv
 │   └── logs/
 │       └── pipeline.log                  # generated at runtime
+├── app.py                                # Streamlit Web Application
 ├── requirements.txt
 ├── README.md
 └── .gitignore

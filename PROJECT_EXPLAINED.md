@@ -38,8 +38,9 @@ src/visualization/plots.py-> every chart, in one place
 src/models/train.py       -> build and train the 3 models
 src/models/evaluate.py    -> score the models, generate reports/charts
 src/models/tune.py        -> automatically try many settings on the best model
-src/models/predict.py     -> use the finished model on one new reading
+src/models/predict.py     -> CLI inference for a single machine reading
 src/run_pipeline.py       -> runs everything above, in order, in one command
+app.py                    -> interactive Streamlit web dashboard for live & batch predictions
 ```
 
 **Why split it up instead of one script?** Two reasons:
@@ -118,11 +119,18 @@ A single Decision Tree asks a series of yes/no questions ("Is torque above 45?" 
 
 A **Random Forest** builds many different decision trees (200, in this project), each one trained on a slightly different random slice of the data and allowed to look at slightly different features at each question. Then it takes a majority vote across all of them. This "wisdom of crowds" effect is why it beat a single Decision Tree and Logistic Regression here — it's more resistant to the training data's quirks.
 
----
+## 7. What `predict.py` and `app.py` do differently from everything else
 
-## 7. What `predict.py` does differently from everything else
+Every pipeline script measures how good the model is, using data where we already know the right answer. `predict.py` and `app.py` are the files that use the finished, saved model (`models/best_model.joblib`) to answer questions we *don't* already know the answer to:
+- **`src/models/predict.py`**: Terminal CLI tool where you type in a machine's readings, and it outputs the prediction and failure probability.
+- **`app.py`**: An interactive Streamlit web dashboard providing:
+  - Sliders and number inputs for all machine telemetry parameters
+  - Preset operational conditions (Normal healthy, High Tool Wear risk, Overheating risk)
+  - Real-time calculated physical indicators ($\Delta T$ and mechanical Power in kW)
+  - Clear visual diagnostic health status cards and risk progress bars
+  - A **Batch CSV upload tab** to screen hundreds of machine sensor logs at once and export results
 
-Every other script measures how good the model is, using data where we already know the right answer. `predict.py` is the only file that uses the finished, saved model (`models/best_model.joblib`) to answer a question we *don't* already know the answer to — you type in a new machine's readings, and it tells you what it thinks will happen. This is the "put it to actual use" step, versus everything before it being "build and check it works."
+This is the "put it to actual use in production/operations" step, versus everything before it being "build and check it works."
 
 ---
 
