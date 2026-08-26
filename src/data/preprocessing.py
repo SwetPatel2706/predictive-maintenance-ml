@@ -1,9 +1,7 @@
 import pandas as pd
-import numpy as np
 
 from src.config import (
     DATA_RAW_DIR,
-    DATA_PROCESSED_DIR,
     COLUMN_RENAME_MAP,
     LEAKAGE_COLUMNS,
     FEATURES,
@@ -20,7 +18,7 @@ logger = get_logger(__name__)
 def load_data() -> pd.DataFrame:
     """Read CSV from config.DATA_RAW_DIR, log shape, dtypes, missing values, duplicates."""
     csv_path = DATA_RAW_DIR / "ai4i2020.csv"
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path, encoding="utf-8")
     logger.info(f"Loaded dataset shape: {df.shape}")
     logger.info(f"Columns: {list(df.columns)}")
     logger.info(f"Dtypes:\n{df.dtypes}")

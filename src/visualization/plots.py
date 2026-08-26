@@ -2,37 +2,37 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
-from pathlib import Path
 
 from src.config import REPORTS_FIGURES_DIR
 
 
-def _save_and_return(fig, filename):
-    """Save figure as PNG and return the figure object."""
-    filepath = REPORTS_FIGURES_DIR / filename
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(filepath, dpi=150, bbox_inches="tight")
+def _save_and_return(fig, filename, save):
+    """Save figure as PNG (when save=True) and always return the figure object."""
+    if save:
+        filepath = REPORTS_FIGURES_DIR / filename
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(filepath, dpi=150, bbox_inches="tight")
     return fig
 
 
 def plot_failure_distribution(df: pd.DataFrame, save=True, filename="failure_distribution.png"):
     """Plot distribution of Machine_Failure (0/1)."""
     fig, ax = plt.subplots()
-    sns.countplot(data=df, x="Machine_Failure", ax=ax, palette="Set1")
+    sns.countplot(data=df, x="Machine_Failure", hue="Machine_Failure", palette="Set1", legend=False, ax=ax)
     ax.set_title("Failure Distribution")
     ax.set_xlabel("Machine Failure (0=No, 1=Yes)")
     ax.set_ylabel("Count")
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_product_type_distribution(df: pd.DataFrame, save=True, filename="product_type_distribution.png"):
     """Plot distribution of Product Type."""
     fig, ax = plt.subplots()
-    sns.countplot(data=df, x="Type", ax=ax, palette="Set2")
+    sns.countplot(data=df, x="Type", hue="Type", palette="Set2", legend=False, ax=ax)
     ax.set_title("Product Type Distribution")
     ax.set_xlabel("Type")
     ax.set_ylabel("Count")
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_numerical_distributions(df: pd.DataFrame, save=True, filename="numerical_distributions.png"):
@@ -48,7 +48,7 @@ def plot_numerical_distributions(df: pd.DataFrame, save=True, filename="numerica
     for i in range(len(numerical), len(axes)):
         fig.delaxes(axes[i])
     fig.suptitle("Numerical Feature Distributions", y=1.02)
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_correlation_heatmap(df: pd.DataFrame, save=True, filename="correlation_heatmap.png"):
@@ -58,7 +58,7 @@ def plot_correlation_heatmap(df: pd.DataFrame, save=True, filename="correlation_
     fig, ax = plt.subplots(figsize=(8, 6))
     sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax, linewidths=0.5)
     ax.set_title("Correlation Heatmap")
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_feature_vs_failure_boxplots(df: pd.DataFrame, save=True, filename="feature_vs_failure_boxplots.png"):
@@ -71,12 +71,15 @@ def plot_feature_vs_failure_boxplots(df: pd.DataFrame, save=True, filename="feat
     axes = axes.ravel()
     for i, col in enumerate(numerical):
         if i < len(axes):
-            sns.boxplot(data=df, x="Machine_Failure", y=col, ax=axes[i], palette="Set1")
+            sns.boxplot(
+                data=df, x="Machine_Failure", y=col, hue="Machine_Failure",
+                palette="Set1", legend=False, ax=axes[i],
+            )
             axes[i].set_title(f"{col} vs Failure")
     for i in range(len(numerical), len(axes)):
         fig.delaxes(axes[i])
     fig.tight_layout()
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_failure_by_product_type(df: pd.DataFrame, save=True, filename="failure_by_product_type.png"):
@@ -86,7 +89,7 @@ def plot_failure_by_product_type(df: pd.DataFrame, save=True, filename="failure_
     ax.set_title("Failure by Product Type")
     ax.set_xlabel("Type")
     ax.set_ylabel("Count")
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_confusion_matrix(cm, labels, title="Confusion Matrix", save=True, filename="confusion_matrix.png"):
@@ -96,7 +99,7 @@ def plot_confusion_matrix(cm, labels, title="Confusion Matrix", save=True, filen
     ax.set_title(title)
     ax.set_ylabel("True Label")
     ax.set_xlabel("Predicted Label")
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_roc_curves(models_dict, X_test, y_test, save=True, filename="roc_curves.png"):
@@ -113,7 +116,7 @@ def plot_roc_curves(models_dict, X_test, y_test, save=True, filename="roc_curves
     ax.set_ylabel("True Positive Rate")
     ax.set_title("ROC Curves Comparison")
     ax.legend(loc="lower right")
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_model_comparison(results_df, save=True, filename="model_comparison.png"):
@@ -130,14 +133,17 @@ def plot_model_comparison(results_df, save=True, filename="model_comparison.png"
     ax.legend(metrics)
     ax.set_xticks(x + width * 1.5)
     ax.set_xticklabels(results_df["Model"], rotation=15)
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)
 
 
 def plot_feature_importance(feature_importance_df, save=True, filename="feature_importance.png"):
     """Plot feature importance bar chart."""
     fig, ax = plt.subplots(figsize=(10, 6))
-    sns.barplot(data=feature_importance_df, x="importance", y="feature", ax=ax, palette="viridis")
+    sns.barplot(
+        data=feature_importance_df, x="importance", y="feature", hue="feature",
+        palette="viridis", legend=False, ax=ax,
+    )
     ax.set_title("Feature Importance")
     ax.set_xlabel("Importance")
     ax.set_ylabel("Feature")
-    return _save_and_return(fig, filename)
+    return _save_and_return(fig, filename, save)

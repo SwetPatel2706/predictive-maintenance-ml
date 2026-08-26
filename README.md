@@ -1,6 +1,6 @@
 # Predictive Maintenance ML Project - AI4I 2020
 
-**Authors:** ML Course Project  
+**Authors:** Karelia Malav H, Swet Patel  
 **Course:** Machine Learning Fundamentals
 
 ## Project Summary
@@ -118,9 +118,11 @@ All run commands use `python -m src.<module>` syntax (not raw relative file path
 
 ### Tuned Random Forest
 
-- **Best CV F1:** 0.7273 (from GridSearchCV)
-- **Test Set Metrics:** Accuracy 0.9810, Precision 0.7273, Recall 0.7059, F1 0.7164, ROC-AUC 0.9700
+- **Best CV F1:** 0.6973 (mean 5-fold CV score during GridSearchCV)
+- **Test Set Metrics:** Accuracy 0.9820, Precision 0.7500, Recall 0.7059, F1 0.7273, ROC-AUC 0.9638
 - **Best hyperparameters:** `n_estimators=200, max_depth=None, min_samples_split=2, min_samples_leaf=1`
+
+(These happen to match the untuned Random Forest baseline — GridSearchCV confirmed the default configuration was already optimal within the search grid.)
 
 ## Limitations
 

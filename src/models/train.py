@@ -1,22 +1,27 @@
-import logging
-from src.config import RANDOM_STATE, FEATURES, TARGET, CATEGORICAL_FEATURES, NUMERICAL_FEATURES
+from sklearn.base import clone
+from src.config import RANDOM_STATE
 from src.data.preprocessing import build_preprocessor
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
-import numpy as np
+from src.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
-def build_models():
-    """Return a dict of 3 unfitted Pipelines: Logistic Regression, Decision Tree, Random Forest."""
-    preprocessor = build_preprocessor()
+def build_models(preprocessor=None):
+    """Return a dict of 3 unfitted Pipelines: Logistic Regression, Decision Tree, Random Forest.
+
+    Each pipeline gets its own clone of `preprocessor` (or a freshly built one
+    if none is passed) so the three models never share mutable fitted state.
+    """
+    if preprocessor is None:
+        preprocessor = build_preprocessor()
 
     rf_pipeline = Pipeline(
         steps=[
-            ("preprocessor", preprocessor),
+            ("preprocessor", clone(preprocessor)),
             ("classifier", RandomForestClassifier(
                 n_estimators=200,
                 class_weight="balanced",
@@ -28,7 +33,7 @@ def build_models():
 
     lr_pipeline = Pipeline(
         steps=[
-            ("preprocessor", preprocessor),
+            ("preprocessor", clone(preprocessor)),
             ("classifier", LogisticRegression(
                 class_weight="balanced",
                 random_state=RANDOM_STATE,
@@ -39,7 +44,7 @@ def build_models():
 
     dt_pipeline = Pipeline(
         steps=[
-            ("preprocessor", preprocessor),
+            ("preprocessor", clone(preprocessor)),
             ("classifier", DecisionTreeClassifier(
                 class_weight="balanced",
                 random_state=RANDOM_STATE,
@@ -76,6 +81,7 @@ if __name__ == "__main__":
     df = clean_data(df)
     X, y = get_features_and_target(df)
     X_train, X_test, y_train, y_test = split_data(X, y)
-    models = build_models()
+    preprocessor = build_preprocessor()
+    models = build_models(preprocessor)
     fitted = train_models(models, X_train, y_train)
     logger.info("Training standalone complete.")

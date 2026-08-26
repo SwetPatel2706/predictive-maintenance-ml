@@ -6,7 +6,7 @@ models/*.joblib
 reports/logs/*.log
 
 # Jupyter checkpoints
-notebooks/*.ipynb.checkpoints/
+.ipynb_checkpoints/
 
 # Python
 __pycache__/
