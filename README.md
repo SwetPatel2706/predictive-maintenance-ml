@@ -103,8 +103,22 @@ Each module can be run independently using the `python -m src.<module>` syntax (
 - `python -m src.models.train` - Train baseline models
 - `python -m src.models.evaluate` - Evaluate models and generate plots
 - `python -m src.models.tune` - Tune Random Forest with GridSearchCV
+- `streamlit run app.py` - Launch the interactive web UI for predictions
 
 All run commands use `python -m src.<module>` syntax (not raw relative file paths) so commands are identical cross-platform.
+
+**Run the Streamlit Web Application:**
+
+First, make sure your virtual environment is activated:
+```bash
+source .venv/bin/activate
+streamlit run app.py
+```
+
+*Alternatively, run directly without activating:*
+```bash
+./.venv/bin/streamlit run app.py
+```
 
 ## Results Summary
 
